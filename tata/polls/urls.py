@@ -1,44 +1,44 @@
 from ninja import NinjaAPI, ModelSchema, Schema
-from polls.models import Player, Game
+from polls.models import Question, Choice
 from django.utils import timezone
 
-router = NinjaAPI()
-class GameSchema(ModelSchema):
+api = NinjaAPI()
+class ChoiceSchema(ModelSchema):
     class Meta:
-        model = Game
+        model = Choice
         fields = [
             "id",
             "choice_text",
             "votes"
         ];
 
-class PlayerSchema(ModelSchema):
+class QuestionSchema(ModelSchema):
     class Meta:
-        model = Player
+        model = Question
         fields = [
             "id",
-            "name",
+            "question_text",
         ];
-    games: list[GameSchema]
+    choices: list[ChoiceSchema]
 
-class AddGameSchema(Schema):
-    name: str
-    games: list[str]
+class AddQuestionSchema(Schema):
+    question_text: str
+    choices: list[str]
 
 
 
-@router.post("/start_game", response=GameSchema)
-def start_game(request, add_game: AddGameSchema):
-    player = Player.objects.create(name=add_game.name, pub_date=timezone.now())
+@api.post("/create_question", response=QuestionSchema)
+def start_game(request, add_question: AddQuestionSchema):
+    question = Question.objects.create(question_text=add_question.question_text, pub_date=timezone.now())
 
-    for game in add_game.games:    # pour rajouter l'affichage des games, il faut le rajouter à la base de Schema (pas dans meta)
-        Game.objects.create(
-            choice_text = game,
-            player = player, 
+    for choice in add_question.choices:    # pour rajouter l'affichage des choices, il faut le rajouter à la base de Schema (pas dans meta)
+        Choice.objects.create(
+            choice_text = choice,
+            question = question, 
         ) 
-    return player
+    return question
 
-@router.get("/player/{player_id}", response=PlayerSchema)
-def get(request, player_id: int):
-    return Player.objects.get(pk=player_id)
+@api.get("/question/{question_id}", response=QuestionSchema)
+def get(request, question_id: int):
+    return Question.objects.get(pk=question_id)
 
