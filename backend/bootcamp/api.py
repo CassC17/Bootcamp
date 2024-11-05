@@ -1,7 +1,8 @@
 from ninja import NinjaAPI
-from events.api import router as events_router
-# from tata.polls.urls import 
+from polls.api import router 
+from game.api import router
 
 api = NinjaAPI()
 
-api.add_router("/polls", polls)
+api.add_router("/polls/", "polls.api.router")
+api.add_router("/game/", "game.api.router")

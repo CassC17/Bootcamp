@@ -1,7 +1,12 @@
-from ninja import NinjaAPI, ModelSchema, Schema
+from ninja import Router, ModelSchema, Schema
 from game.models import Game, Player
 
-api = NinjaAPI()
+router = Router()
+class PlayerSchema(ModelSchema):
+    class Meta:
+        model = Player
+        fields = ["id", "name", "score"];
+
 class GameSchema(ModelSchema):
     class Meta:
         model = Game
@@ -13,27 +18,16 @@ class GameSchema(ModelSchema):
         ];
     players: list[PlayerSchema]
 
-
-class PlayerSchema(ModelSchema):
-    class Meta:
-        model = Player
-        fields = [
-            "id",
-            "name",
-            "score"
-        ];
-    games: list[GameSchema]
-
 class AddPlayerSchema(Schema):
     name: str
     players: list[str]
 
 
-@api.post("/start_game/", response=GameSchema)
+@router.post("/start_game/", response=GameSchema)
 def start_game(request, game_id: int):
     return Game.objects.get(pk=game_id)
 
-@api.get("/player/{player_id}", response=PlayerSchema)
+@router.get("/player/{player_id}", response=PlayerSchema)
 def get(request, player_id: int):
     return Player.objects.get(pk=player_id)
 

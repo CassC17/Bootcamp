@@ -1,8 +1,8 @@
-from ninja import NinjaAPI, ModelSchema, Schema
+from ninja import Router, ModelSchema, Schema
 from polls.models import Question, Choice
 from django.utils import timezone
 
-api = NinjaAPI()
+router = Router()
 class ChoiceSchema(ModelSchema):
     class Meta:
         model = Choice
@@ -27,8 +27,8 @@ class AddQuestionSchema(Schema):
 
 
 
-@api.post("/create_question", response=QuestionSchema)
-def start_game(request, add_question: AddQuestionSchema):
+@router.post("/create_question", response=QuestionSchema)
+def create_question(request, add_question: AddQuestionSchema):
     question = Question.objects.create(question_text=add_question.question_text, pub_date=timezone.now())
 
     for choice in add_question.choices:    # pour rajouter l'affichage des choices, il faut le rajouter à la base de Schema (pas dans meta)
@@ -38,7 +38,7 @@ def start_game(request, add_question: AddQuestionSchema):
         ) 
     return question
 
-@api.get("/question/{question_id}", response=QuestionSchema)
+@router.get("/question/{question_id}", response=QuestionSchema)
 def get(request, question_id: int):
     return Question.objects.get(pk=question_id)
 
